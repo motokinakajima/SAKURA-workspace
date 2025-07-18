@@ -1,3 +1,5 @@
+// Gmail functionality has been disabled
+/*
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 
@@ -47,6 +49,21 @@ class EmailSender {
       console.error('Error sending email:', error);
       throw error;
     }
+  }
+}
+
+module.exports = EmailSender;
+*/
+
+// Dummy EmailSender class to prevent import errors
+class EmailSender {
+  constructor(user, clientId, clientSecret, refreshToken) {
+    console.log('[EMAIL] Email functionality is disabled');
+  }
+
+  async sendEmail(to, subject, text, html) {
+    console.log(`[EMAIL] Email sending disabled - would have sent to: ${to}, subject: ${subject}`);
+    return Promise.resolve({ message: 'Email functionality disabled' });
   }
 }
 

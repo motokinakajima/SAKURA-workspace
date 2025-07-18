@@ -4,7 +4,7 @@ const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 const { transliterate } = require('transliteration');
-const EmailSender = require('../EmailSender');
+const EmailSender = require('../EmailSender'); // Kept for compatibility - now returns dummy class
 const {cleanUp} = require("../DatabaseUtil");
 require('dotenv').config();
 
@@ -12,6 +12,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Gmail functionality disabled - EmailSender now returns dummy implementation
 const emailSender = new EmailSender(process.env.GMAIL_USER,process.env.GMAIL_CLIENT_ID,process.env.GMAIL_CLIENT_SECRET,process.env.GMAIL_REFRESH_TOKEN);
 
 const storage = multer.memoryStorage();

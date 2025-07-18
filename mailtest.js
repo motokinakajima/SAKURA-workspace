@@ -1,3 +1,5 @@
+// Gmail functionality has been disabled - this test file is no longer functional
+/*
 const nodemailer = require('nodemailer');
 const { google } = require('googleapis');
 require('dotenv').config();
@@ -46,3 +48,6 @@ async function sendMail() {
 }
 
 sendMail();
+*/
+
+console.log('[MAILTEST] Gmail functionality has been disabled - test file cannot run');

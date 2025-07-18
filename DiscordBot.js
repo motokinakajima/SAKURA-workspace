@@ -1,3 +1,5 @@
+// Discord bot functionality has been commented out - token invalidated and no longer needed
+/*
 const { Client, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
 
@@ -40,3 +42,10 @@ async function sendMessageToChannel(channelName, messageContent) {
 }
 
 module.exports = { client, sendMessageToChannel };
+*/
+
+// Dummy exports to prevent import errors
+module.exports = { 
+  client: null, 
+  sendMessageToChannel: () => console.log('Discord functionality disabled') 
+};

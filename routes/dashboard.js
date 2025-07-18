@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const EmailSender = require('../EmailSender');
+const EmailSender = require('../EmailSender'); // Kept for compatibility - now returns dummy class
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
@@ -8,6 +8,7 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// Gmail functionality disabled - EmailSender now returns dummy implementation
 const emailSender = new EmailSender(process.env.GMAIL_USER,process.env.GMAIL_CLIENT_ID,process.env.GMAIL_CLIENT_SECRET,process.env.GMAIL_REFRESH_TOKEN);
 
 router.get('/', async (req, res) => {
@@ -149,7 +150,7 @@ function buildTree(data) {
 
     // Create a root node for the tree
     return {
-        name: "Hayabusa Racing", url: "/project/projects",
+        name: "SAKURA workspace", url: "/project/projects",
         children: Object.values(projectMap)
     };
 }
