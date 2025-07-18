@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+    <div class="container">
+        <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+        <div class="content">
+
+            <div class="breadcrumb">
+                <a href="/dashboard">ダッシュボード</a>
+                <span>></span>
+                <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name %></a>
+                <span>></span>
+                <span><%= taskData[0].name %></span>
+            </div>
+
+            <div class="section">
+                <h2 class="project-heading"><%= projectData[0].name %></h2>
+                <p><%= projectData[0].description %></p>
+            </div>
+
+            <div class="section">
+                <h2 class="task-heading"><%= taskData[0].name %></h2>
+                <p>
+                    概要：<%= taskData[0].description %><br>
+                    作成日：<%= taskData[0].created_at %><br>
+                    期限：<%= taskData[0].due %><br>
+                    優先度：<%= taskData[0].priority %><br>
+                    リスク：<%= taskData[0].risk %><br>
+                    Responsible：<% users.forEach(row => { %><%= row.userID === taskData[0].responsible? row.name : ''%><% }) %><br>
+                    Accountable：<% users.forEach(row => { %><%= row.userID === taskData[0].accountable? row.name : ''%><% }) %><br>
+                    Consulted：<% users.forEach(row => { %><%= row.userID === taskData[0].consulted? row.name : ''%><% }) %><br>
+                    Informed：<% users.forEach(row => { %><%= row.userID === taskData[0].informed? row.name : ''%><% }) %><br>
+                </p>
+                <div class="selector">
+                    <select name="progress" id="selectProgress">
+                        <option value="-1" <%= taskData[0].completion === -1 ? 'selected' : ''%>>開始前</option>
+                        <option value="0" <%= taskData[0].completion === 0 ? 'selected' : ''%>>進行中</option>
+                        <option value="1" <%= taskData[0].completion === 1 ? 'selected' : ''%>>完了</option>
+                    </select>
+                </div>
+                <div><a href="/task/edit-task?tid=<%= taskData[0].taskID %>"><button>タスクを編集</button></a></div>
+            </div>
+
+            <div class="section">
+                <h2 class="subtask-heading">サブタスク一覧</h2>
+                <% if(subtaskData && subtaskData.length > 0) { %>
+                    <table id="subtaskTable">
+                        <thead>
+                        <tr>
+                            <th>サブタスク名</th>
+                            <th onclick="sortSubtasksByDueDate()" style="cursor: pointer;">期限 <span
+                                        id="sortArrow">↑</span></th>
+                            <th>責任者
+                                <div class="selector">
+                                    <select id="personFilter">
+                                        <option value="all">All</option>
+                                        <% users.forEach(user_row => { %>
+                                            <option value="<%= user_row.userID %>"><%= user_row.name %></option>
+                                        <% }) %>
+                                    </select>
+                                </div>
+                            </th>
+                            <th>進行度
+                                <div class="selector">
+                                    <select id="statusFilter">
+                                        <option value="all">All</option>
+                                        <option value="-1">開始前</option>
+                                        <option value="0">進行中</option>
+                                        <option value="1">完了</option>
+                                    </select>
+                                </div>
+                            </th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <% subtaskData.forEach(row => { %>
+                            <tr>
+                                <td><a href="/subtask?sid=<%= row.subtaskID %>"><%= row.name %></a></td>
+                                <td><%= row.due %></td>
+                                <td>
+                                    <% users.forEach(user_row => { %>
+                                        <%= user_row.userID === row.responsible ? user_row.name : '' %>
+                                    <% }) %>
+                                    <div hidden><%= row.responsible %></div>
+                                </td>
+                                <td data-completion="<%= row.completion %>">
+                                    <div class="selector">
+                                        <select name="progress" id="<%= row.subtaskID %>_progress_selector">
+                                            <option value="-1" <%= row.completion === -1 ? 'selected' : '' %>>開始前
+                                            </option>
+                                            <option value="0" <%= row.completion === 0 ? 'selected' : '' %>>進行中
+                                            </option>
+                                            <option value="1" <%= row.completion === 1 ? 'selected' : '' %>>完了
+                                            </option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <form action="/subtask/delete-subtask" method="post">
+                                        <input type="hidden" name="subtaskID" value="<%= row.subtaskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    </table>
+                    <form action="/task/create-subtask" method="get">
+                        <button type="submit">サブタスクを作成</button>
+                    </form>
+                <% } else { %>
+                    <p>表示するサブタスクがありません</p>
+                    <form action="/task/create-subtask" method="get">
+                        <button type="submit">サブタスクを作成</button>
+                    </form>
+                <% } %>
+            </div>
+
+            <div class="section">
+                <h2>添付ファイル</h2>
+                <% if(files && files.length > 0) { %>
+                <% files.forEach(file => { %>
+                    <li>
+                        <span style="display: inline;">
+                            <a href="<%= file.fileUrl %>" target="_blank"><%= file.fileName.replace(/^[^_]+_/, '') %></a>
+                        </span>
+                        <form action="/task/delete-file" method="post" style="display: inline;">
+                            <input type="hidden" value="<%= file.id %>" name="fileID">
+                            <input type="hidden" value="<%= taskData[0].taskID %>" name="taskID">
+                            <button type="submit">削除</button>
+                        </form>
+                    </li>
+                <% }) %>
+                <% }else { %>
+                    <p>まだ添付ファイルはありません</p>
+                <% } %>
+            </div>
+
+            <div class="section">
+                <h2>ファイルアップロード</h2>
+                <form method="post" enctype="multipart/form-data" action="/task/upload-file">
+                    <div class="file-upload">
+                        <input type="hidden" name="taskID" value="<%= taskData[0].taskID%>">
+                        <input type="file" name="taskFile" id="taskFile" accept=".docx,.xlsx,.pdf" required>
+                        <label for="taskFile">ファイルを選択</label>
+                        <button type="submit">Upload File</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>コメント</h2>
+                <% if (comments && comments.length > 0) { %>
+                    <ul class="comments">
+                    <% comments.forEach(row => { %>
+                        <li>
+                            <div><a href="/profile?uid=<%= row.commenter_id%>"><img class="comment-icon" src="<%= supabaseURL%>/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon"></a><br><%= row.commenter_name%></div>
+                            <div><%= row.comment %></div>
+                            <div><%= row.created_at %></div>
+                        </li>
+                    <% }) %>
+                    </ul>
+                <% } else { %>
+                    <p>コメントはまだありません</p>
+                <% } %>
+
+                <form method="post" action="/task/">
+                    <label for="comment"><b>コメントを送信</b></label>
+                    <input type="text" placeholder="コメントを入力" name="comment" required>
+                    <br>
+                    <button type="submit">投稿</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    let isAsc = true; // Sort order flag
+
+    function filterSubtasks() {
+        let statusFilterValue = document.getElementById('statusFilter').value;
+        let personFilterValue = document.getElementById('personFilter').value;
+        let table = document.getElementById('subtaskTable');
+        let rows = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < rows.length; i++) {
+            let completionValue = rows[i].getElementsByTagName('td')[4].dataset.completion;
+            let personValue = rows[i].getElementsByTagName('td')[3].querySelector('div').innerText.trim();
+
+            if ((statusFilterValue === 'all' || statusFilterValue === completionValue) &&
+                (personFilterValue === 'all' || personFilterValue === personValue)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
+        }
+    }
+
+    function sortSubtasksByDueDate() {
+        let table = document.getElementById('subtaskTable').getElementsByTagName('tbody')[0];
+        let rows = Array.from(table.getElementsByTagName('tr'));
+
+        rows.sort(function(a, b) {
+            let dateA = new Date(a.getElementsByTagName('td')[2].innerText);
+            let dateB = new Date(b.getElementsByTagName('td')[2].innerText);
+            return isAsc ? dateA - dateB : dateB - dateA;
+        });
+
+        // Toggle the sort order
+        isAsc = !isAsc;
+
+        // Update the sort arrow based on the current sort order
+        document.getElementById('sortArrow').textContent = isAsc ? '↑' : '↓';
+
+        rows.forEach(row => table.appendChild(row)); // Reorder rows
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('statusFilter').addEventListener('change', filterSubtasks);
+        document.getElementById('personFilter').addEventListener('change', filterSubtasks);
+    });
+
+    <%subtaskData.forEach(row => {%>
+    {
+        const subtaskID = "<%= row.subtaskID%>";
+        document.getElementById("<%= row.subtaskID %>_progress_selector").addEventListener('change', function() {
+            const selectedValue = this.value;
+            const data = { subtaskID: subtaskID, progress: selectedValue };
+            fetch('/subtask/update-progress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data) // Send the selected value as JSON
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    // Reload the page after the server has processed the request
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    }
+    <%});%>
+    
+</script>

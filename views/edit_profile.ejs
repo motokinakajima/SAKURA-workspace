@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "profile" }) %>
+    
+    <div class="content">
+        <div class="section">
+            <h2>プロフィール</h2>
+            <img id="icon-image" src="<%= iconData.publicUrl%>" alt="icon">
+            <form action="/profile/upload-icon" method="get"><button type="submit">アイコンを編集</button></form>
+            <form action="/profile/edit-profile" method="post">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>mail Address</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" name="name" value="<%= userData[0].name%>"></td>
+                            <td><%= userData[0].email%></td>
+                            <input type="hidden" name="userID" value="<%= userData[0].userID%>">
+                            <td><button type="submit">変更を保存</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Add a timestamp to the URL to force the browser to fetch the latest image
+        const timestamp = new Date().getTime();
+        const imageUrl = `<%= iconData.publicUrl %>?v=${timestamp}`;
+        console.log(imageUrl); // Debug the URL to ensure it's correct
+        const icon = document.getElementById('icon-image');
+        icon.src = imageUrl;
+    });
+</script>
+</html>

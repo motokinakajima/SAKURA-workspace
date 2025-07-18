@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID } %>
+    <div class="content">
+        <div class="section">
+            <h2>プロフィール</h2>
+            <img id="icon-image" src="<%= iconData.publicUrl%>" alt="icon">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>mail Address</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><%= userData[0].name%></td>
+                        <td><%= userData[0].email%></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Add a timestamp to the URL to force the browser to fetch the latest image
+        const timestamp = new Date().getTime();
+        const imageUrl = `<%= iconData.publicUrl %>?v=${timestamp}`;
+        console.log(imageUrl); // Debug the URL to ensure it's correct
+        const icon = document.getElementById('icon-image');
+        icon.src = imageUrl;
+    });
+</script>
+</html>

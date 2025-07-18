@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+    <div class="content">
+        <div class="section">
+            <h2 class="project-heading">プロジェクト編集</h2>
+            <form method="post" action="/project/edit-project">
+                <label for="project_name"><b>Project Name</b></label>
+                <input type="text" value="<%= projectData[0].name%>" name="project_name" required>
+                <br>
+        
+                <label for="project_description"><b>Project Description</b></label>
+                <input type="text" value="<%= projectData[0].description%>" name="project_description" required>
+        
+                <button type="submit">変更を保存</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

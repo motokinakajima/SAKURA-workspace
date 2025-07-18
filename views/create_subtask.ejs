@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+    <div class="content">
+        <div class="section">
+            <h2 class="subtask-heading">サブタスク作成</h2>
+            <form method="post" action="/task/create-subtask">
+                <label for="subtask_name"><b>Subtask Name</b></label>
+                <input type="text" placeholder="Enter Subtask Name" name="subtask_name" required>
+                <br>
+
+                <label for="subtask_description"><b>Subtask Description</b></label>
+                <input type="text" placeholder="Enter Subtask Description" name="subtask_description" required>
+                <br>
+
+                <label for="start_date"><b>Start Date</b></label>
+                <input type="date" placeholder="Enter Start Date" name="start_date" required>
+                <br>
+
+                <label for="due_date"><b>Due Date</b></label>
+                <input type="date" placeholder="Enter Due Date" name="due_date" required>
+                <br>
+
+                <label for="priority"><b>Priority</b></label>
+                <input type="text" placeholder="Enter Priority" name="priority" required>
+                <br>
+
+                <div class="selector">
+                    <label for="responsible"><b>Responsible</b></label>
+                    <% if(users) {%>
+                    <select name="responsible">
+                        <% users.forEach( row => {%>
+                        <option value="<%= row.userID%>"><%= row.name %></option>
+                        <% }); %>
+                    </select>
+                    <% } else { %>
+                        <input type="text" placeholder="Enter Responsible" name="responsible" required>
+                    <% } %>
+                </div>
+
+                <button type="submit">作成</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+    <div class="container">
+        <%- include('partials/sidebar', { userID: userID, selected: "projects" }) %>
+        <div class="content">
+            <div class="section">
+                <h2 class="project-heading">プロジェクト一覧</h2>
+                <% if(projects && projects.length > 0) { %>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>プロジェクト名</th>
+                                <th>概要</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        <% projects.forEach(row => { %>
+                            <tr>
+                                <td><a href="/project?pid=<%= row.projectID %>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><form action="/project/delete-project" method="post"><input type="hidden" name="projectID" value="<%= row.projectID%>"><button type="submit">削除</button></form></td>
+                            </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                <% }else { %>
+                    <p>プロジェクトはまだありません</p>
+                <% } %>
+                <form action="/dashboard/create-project" method="get"><button type="submit">プロジェクトを作成</button></form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

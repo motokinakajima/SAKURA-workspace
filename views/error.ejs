@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+    <div class="container">
+        <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+        <div class="content">
+            <h1>Error</h1>
+            <p><%= message %></p>
+            <p>Status: <%= error.status %></p>
+            <pre><%= error.stack %></pre>
+        </div>
+    </div>
+</body>
+</html>

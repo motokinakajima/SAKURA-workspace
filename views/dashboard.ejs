@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+
+<style>
+    .node circle {
+        fill: #0d47a1;
+    }
+
+    .node text {
+        font-size: 14px;
+        font-family: "BIZ UDPGothic", "Sawarabi Gothic", "Noto Serif JP", 'Roboto', sans-serif;
+        font-weight: 400;
+    }
+
+    .link {
+        fill: none;
+        stroke: #555;
+        stroke-opacity: 0.4;
+        stroke-width: 2px;
+    }
+
+    .node rect {
+        fill: #f9f9f9;
+        stroke: none;
+    }
+</style>
+
+<body>
+    <div class="container">
+        <%- include('partials/sidebar', { userID: userID, selected: "dashboard" }) %>
+
+        <div class="content">
+            <div class="section">
+                <h2 class="subtask-heading">自分のサブタスク一覧</h2>
+                <% if(subtask && subtask.length > 0) { %>
+                    <table id="taskTable">
+                        <thead>
+                        <tr>
+                            <th>タスク名</th>
+                            <th>概要</th>
+                            <th>期限</th>
+                            <th>進行度</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <% subtask.forEach(row => { %>
+                            <tr>
+                                <td><a href="/subtask?sid=<%= row.subtaskID %>"><%= row.name %></a></td>
+                                <td><%= row.description %></td>
+                                <td><%= row.due %></td>
+                                <td data-completion="<%= row.completion %>">
+                                    <% if(row.completion === 1) { %>
+                                        完了
+                                    <% } else if(row.completion === 0) { %>
+                                        進行中
+                                    <% } else { %>
+                                        開始前
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <form action="/subtask/delete-subtask" method="post">
+                                        <input type="hidden" name="subtaskID" value="<%= row.subtaskID %>">
+                                        <button type="submit">削除</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        <% }) %>
+                        </tbody>
+                    </table>
+                    <div id="chart_div"></div>
+                <% } else { %>
+                    <p>表示するサブタスクがありません</p>
+                <% } %>
+            </div>
+
+            <svg style="background-color: #e3f2fd;"></svg>
+        </div>
+    </div>
+</body>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+    const treeData = <%- JSON.stringify(tree)%>;
+
+    // Constants for spacing and sizing
+    const VERTICAL_SPACING = 50; // Space between nodes vertically
+    const HORIZONTAL_SPACING = 200; // Space between layers
+    const margin = { top: 40, right: 120, bottom: 40, left: 200 };
+
+    const root = d3.hierarchy(treeData);
+    const leafNodes = root.leaves().length;
+
+    const totalHeight = (leafNodes + 1) * VERTICAL_SPACING;
+    const svgHeight = totalHeight + margin.top + margin.bottom;
+
+    const svg = d3.select("svg");
+    const container = svg.node().parentNode;
+    const svgWidth = container.getBoundingClientRect().width;
+    svg.attr("width", svgWidth)
+        .attr("height", svgHeight);
+
+    const treeLayout = d3.tree()
+        .nodeSize([VERTICAL_SPACING, HORIZONTAL_SPACING])
+        .separation(() => 1);
+
+    treeLayout(root);
+
+    const g = svg.append("g")
+        .attr("transform", `translate(${margin.left}, ${svgHeight/2 + margin.top + VERTICAL_SPACING})`);
+
+    // Draw links with rightward-opening curves
+    g.selectAll(".link")
+        .data(root.links())
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d => {
+            const sourceX = d.source.y;
+            const sourceY = d.source.x;
+            const targetX = d.target.y;
+            const targetY = d.target.x;
+            const midX = (sourceX + targetX) / 2;
+
+            return `M${sourceX},${sourceY}
+                    C${midX},${sourceY}
+                     ${midX},${targetY}
+                     ${targetX},${targetY}`;
+        });
+
+    // Create node groups
+    const node = g.selectAll(".node")
+        .data(root.descendants())
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+    node.append("circle")
+        .attr("fill", d => d.children ? "#555" : "#999")
+        .attr("r", 2.5);
+
+    node.append("a")
+        .attr("xlink:href", d => `${d.data.url}`)
+        .append("text")
+        .attr("dy", "0.31em")
+        .attr("x", d => d.children ? -6 : 6)
+        .attr("text-anchor", d => d.children ? "end" : "start")
+        .text(d => d.data.name)
+        .attr("stroke", "white")
+        .attr("paint-order", "stroke")
+</script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script>
+    let subtasks = <%- JSON.stringify(subtask) %>;
+
+    google.charts.load('current', {'packages': ['gantt']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function daysToMilliseconds(days) {
+        return days * 24 * 60 * 60 * 1000;
+    }
+
+    function drawChart() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Task ID');
+        data.addColumn('string', 'Task Name');
+        data.addColumn('string', 'Resource');
+        data.addColumn('date', 'Start Date');
+        data.addColumn('date', 'End Date');
+        data.addColumn('number', 'Duration');
+        data.addColumn('number', 'Percent Complete');
+        data.addColumn('string', 'Dependencies');
+
+        let insertData = [];
+
+        subtasks.forEach(function (row) {
+            let startDate = new Date(row.start);
+            let endDate = new Date(row.due);
+
+            if (isNaN(startDate.getTime())) {
+                console.error('Invalid start date:', row.start);
+                startDate = new Date();
+            }
+
+            if (isNaN(endDate.getTime())) {
+                console.error('Invalid end date:', row.due);
+                endDate = new Date();
+            }
+
+            let duration = endDate >= startDate ? (endDate - startDate) / (1000 * 60 * 60 * 24) : 0;
+            let rowData = [
+                row.subtaskID ? row.subtaskID.toString() : '',
+                row.name || 'Unnamed Subtask',
+                row.description || 'No Description',
+                startDate,
+                endDate,
+                duration * 24 * 60 * 60 * 1000,
+                0,
+                ''
+            ];
+            insertData.push(rowData);
+        });
+
+        data.addRows(insertData);
+
+        // Calculate dynamic height based on the number of subtasks
+        let rowHeight = 30;  // Each row is 30 pixels high
+        let padding = 50;   // Padding for the chart (timeline, headers, etc.)
+        let chartHeight = insertData.length * rowHeight + padding; // Dynamic height calculation
+
+        let containerWidth = document.querySelector('#chart_div').parentElement.offsetWidth * 0.95;
+
+        var options = {
+            height: chartHeight,  // Use the dynamically calculated height
+            width: containerWidth, // Adjust width to fit the container
+            gantt: {
+                trackHeight: rowHeight // Adjust row height
+            }
+        };
+
+        var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+
+        chart.draw(data, options);
+
+        google.visualization.events.addListener(chart, 'onmouseover', function() {
+            var tooltips = document.querySelectorAll('.google-visualization-tooltip');
+            tooltips.forEach(function (tooltip) {
+                tooltip.style.zIndex = '1000';  // Ensure tooltips appear above other elements
+            });
+        });
+    }
+
+    <%subtask.forEach(row => {%>
+    {
+        const subtaskID = "<%= row.subtaskID%>";
+        document.getElementById("<%= row.subtaskID %>_progress_selector").addEventListener('change', function() {
+            const selectedValue = this.value;
+            const data = { subtaskID: subtaskID, progress: selectedValue };
+            fetch('/subtask/update-progress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data) // Send the selected value as JSON
+            })
+                .then(response => response.json())
+                .then(result => {
+                    console.log('Success:', result);
+                    // Reload the page after the server has processed the request
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    }
+    <%});%>
+</script>
+</html>

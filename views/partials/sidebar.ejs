@@ -1,0 +1,19 @@
+<div class="sidebar">
+    <img src="/images/hayabusa2.png" alt="icon">
+    <% if(userID) { %>
+        <ul>
+            <a href="/dashboard"><li <%= selected === "dashboard"? `class=sidebar-selected`: "";%>>ダッシュボード</li></a>
+            <a href="/project/projects"><li <%= selected === "projects"? `class=sidebar-selected`: "";%>>プロジェクト一覧</li></a>
+            <a href="/task/tasks"><li <%= selected === "tasks"? `class=sidebar-selected`: "";%>>タスク一覧</li></a>
+            <a href="/subtask/subtasks"><li <%= selected === "subtasks"? `class=sidebar-selected`: "";%>>サブタスク一覧</li></a>
+            <a href="/profile?uid=<%= userID %>"><li <%= selected === "profile"? `class=sidebar-selected`: "";%>>マイページ</li></a>
+            <a href="/login/logout"><li>ログアウト</li></a>
+        </ul>
+    <% } else { %>
+        <ul>
+            <a href="/"><li>ホーム</li></a>
+            <a href="/login"><li>ログイン</li></a>
+            <a href="/login/create"><li>アカウント作成</li></a>
+        </ul>
+    <% } %>
+</div>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+    <div class="content">
+
+        <div class="section">
+            <h2>概要</h2>
+            <p>このタスク管理ソフトはタスク管理ソフトです。なんか、うまく使ってください。結構頑張って作ったんで、、</p>
+            <% if(userID) { %>
+                <form action="/dashboard" method="get"><button type="submit">ダッシュボード</button></form>
+            <% }else { %>
+                <form action="/login" method="get"><button type="submit">ログイン</button></form>
+            <% } %>
+        </div>
+    </div>
+</div>
+</body>
+</html>

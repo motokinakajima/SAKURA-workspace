@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ja">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+    <div class="content">
+
+        <div class="breadcrumb">
+            <a href="/dashboard">ダッシュボード</a>
+            <span>></span>
+            <a href="/project?pid=<%= projectData[0].projectID%>"><%= projectData[0].name %></a>
+            <span>></span>
+            <a href="/task?tid=<%= taskData[0].taskID%>"><%= taskData[0].name %></a>
+            <span>></span>
+            <span><%= subtaskData[0].name %></span>
+        </div>
+
+        <div class="section">
+            <h2 class="project-heading"><%= projectData[0].name %></h2>
+            <p><%= projectData[0].description %></p>
+        </div>
+
+        <div class="section">
+            <h2 class="task-heading"><%= taskData[0].name %></h2>
+            <p>
+                概要：<%= taskData[0].description %><br>
+                期限：<%= taskData[0].due %><br>
+                Responsible：<% users.forEach(row => { %><%= row.userID === taskData[0].responsible? row.name : ''%><% }) %><br>
+            </p>
+        </div>
+
+        <div class="section">
+            <h2 class="subtask-heading"><%= subtaskData[0].name %></h2>
+            <p>
+                概要：<%= subtaskData[0].description %><br>
+                期限：<%= subtaskData[0].due %><br>
+                Responsible：<% users.forEach(row => { %><%= row.userID === subtaskData[0].responsible? row.name : ''%><% }) %><br>
+            </p>
+            <div><a href="/subtask/edit-subtask?sid=<%= subtaskData[0].subtaskID %>"><button>サブタスクを編集</button></a></div>
+        </div>
+
+        <div class="section">
+            <h2>コメント</h2>
+            <% if (comments && comments.length > 0) { %>
+                <ul class="comments">
+                    <% comments.forEach(row => { %>
+                        <li>
+                            <div><a href="/profile?uid=<%= row.commenter_id%>"><img class="comment-icon" src="<%= supabaseURL%>/storage/v1/object/public/icons/<%= row.commenter_id%>.jpg" alt="icon"></a><br><%= row.commenter_name%></div>
+                            <div><%= row.comment %></div>
+                            <div><%= row.created_at %></div>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+                <p>コメントはまだありません</p>
+            <% } %>
+
+            <form method="post" action="/subtask/">
+                <label for="comment"><b>コメントを送信</b></label>
+                <input type="text" placeholder="コメントを入力" name="comment" required>
+                <br>
+                <button type="submit">投稿</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+
+<script>
+</script>

@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+    <div class="content">
+        <div class="section">
+            <h2>アイコンアップロード</h2>
+            <form method="post" enctype="multipart/form-data" action="/profile/upload-icon">
+                <input type="file" name="avatar" accept="image/*" required>
+                <button type="submit">Upload</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

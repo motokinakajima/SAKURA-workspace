@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+    <div class="content">
+        <div class="section">
+            <h2>アカウントを作成</h2>
+            <form method="post" action="/login/create">
+                <label for="usr_name"><b>Username</b></label>
+                <input type="text" placeholder="Enter Username" name="usr_name" required>
+                <br>
+        
+                <label for="mail"><b>Mail Address</b></label>
+                <input type="email" placeholder="Enter Mail Address" name="mail" required>
+                <br>
+        
+                <label for="password"><b>Password</b></label>
+                <input type="password" placeholder="Enter Password" name="password" required>
+                <br>
+
+                <label for="keyword"><b>Keyword</b></label>
+                <input type="password" placeholder="Enter keyword" name="keyword" required>
+        
+                <button type="submit">作成</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>

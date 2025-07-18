@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: 'Hayabusa Charmer' }) %>
+<body>
+<div class="container">
+    <%- include('partials/sidebar', { userID: userID, selected: "" }) %>
+    <div class="content">
+        <div class="section">
+            <h2 class="subtask-heading">サブタスク編集</h2>
+            <form method="post" action="/subtask/edit-subtask">
+                <label for="subtask_name"><b>Task Name</b></label>
+                <input type="text" value="<%= subtaskData[0].name %>" name="subtask_name" required>
+                <br>
+
+                <label for="task_description"><b>Task Description</b></label>
+                <input type="text" value="<%= subtaskData[0].description %>" name="subtask_description" required>
+                <br>
+
+                <label for="start_date"><b>Start Date</b></label>
+                <input type="date" value="<%= subtaskData[0].start %>" name="start_date" required>
+                <br>
+
+                <label for="due_date"><b>Due Date</b></label>
+                <input type="date" value="<%= subtaskData[0].due %>" name="due_date" required>
+                <br>
+
+                <label for="priority"><b>Priority</b></label>
+                <input type="text" value="<%= subtaskData[0].priority %>" name="priority" required>
+                <br>
+
+                <div class="selector">
+                    <label for="responsible"><b>Responsible</b></label>
+                    <% if(users) { %>
+                        <select name="responsible">
+                            <% users.forEach( row => { %>
+                                <option value="<%= row.userID%>" <%= row.userID === subtaskData[0].responsible ? 'selected' : '' %>><%= row.name %></option>
+                            <% }) %>
+                        </select>
+                    <% } else { %>
+                        <input type="text" placeholder="Enter Responsible" name="responsible" required>
+                    <% } %>
+                </div>
+
+                <div class="selector">
+                    <label for="progress"><b>Progress</b></label>
+                    <select name="progress">
+                        <option value="-1" <%= subtaskData[0].completion === -1 ? 'selected' : ''%>>開始前</option>
+                        <option value="0" <%= subtaskData[0].completion === 0 ? 'selected' : ''%>>進行中</option>
+                        <option value="1" <%= subtaskData[0].completion === 1 ? 'selected' : ''%>>完了</option>
+                    </select>
+                </div>
+
+                <button type="submit">変更を保存</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
